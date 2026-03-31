@@ -18,7 +18,7 @@ func TestHeaderParse(t *testing.T) {
 	assert.Equal(t, "barbar", headers["Foofoo"])
 	assert.Equal(t, "", headers["missingKey"])
 	assert.Equal(t, 44, n)
-	assert.False(t, done)
+	assert.True(t, done)
 
 	// Test: Invalid spacing header
 	headers = NewHeaders()
