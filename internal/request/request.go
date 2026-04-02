@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"gottp/internal/headers"
 	"io"
+	"strconv"
 )
 
 type RequestLine struct {
@@ -18,6 +19,7 @@ type parserState string
 const (
 	StateInit    parserState = "init"
 	StateHeaders parserState = "headers"
+	StateBody    parserState = "body"
 	StateDone    parserState = "done"
 	StateError   parserState = "error"
 )
@@ -25,13 +27,29 @@ const (
 type Request struct {
 	RequestLine RequestLine
 	Headers     *headers.Headers
+	Body        string
 	state       parserState
+}
+
+func getIntHeaders(headers *headers.Headers, name string, defaultValue int) int {
+	valueStr, exists := headers.Get(name)
+	if !exists {
+		return defaultValue
+	}
+
+	value, err := strconv.Atoi(valueStr)
+	if err != nil {
+		return defaultValue
+	}
+
+	return value
 }
 
 func newRequest() *Request {
 	return &Request{
 		state:   StateInit,
 		Headers: headers.NewHeaders(),
+		Body:    "",
 	}
 }
 
@@ -112,6 +130,21 @@ outer:
 			read += n
 
 			if done {
+				r.state = StateDone
+			}
+
+		case StateBody:
+			length := getIntHeaders(r.Headers, "content-lenght", 0)
+			if length == 0 {
+				r.state = StateError
+				break
+			}
+
+			remaining := min(length-len(r.Body), len(currentData))
+			r.Body += string(currentData[:remaining])
+			read += remaining
+
+			if len(r.Body) == length {
 				r.state = StateDone
 			}
 

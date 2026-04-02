@@ -14,9 +14,19 @@ func TestHeaderParse(t *testing.T) {
 	n, done, err := headers.Parse(data)
 	require.NoError(t, err)
 	require.NotNil(t, headers)
-	assert.Equal(t, "localhost:42069", headers.Get("Host"))
-	assert.Equal(t, "barbar", headers.Get("Foofoo"))
-	assert.Equal(t, "", headers.Get("missingKey"))
+
+	host, ok := headers.Get("host")
+	assert.True(t, ok)
+	assert.Equal(t, "localhost:42069", host)
+
+	foo, ok := headers.Get("Foofoo")
+	assert.True(t, ok)
+	assert.Equal(t, "barbar", foo)
+
+	missingKey, ok := headers.Get("host")
+	assert.True(t, ok)
+	assert.Equal(t, "", missingKey)
+
 	assert.Equal(t, 44, n)
 	assert.True(t, done)
 
@@ -42,6 +52,9 @@ func TestHeaderParse(t *testing.T) {
 	n, done, err = headers.Parse(data)
 	require.NoError(t, err)
 	require.NotNil(t, headers)
-	assert.Equal(t, "localhost:42069,localhost:42069", headers.Get("Host"))
+
+	host, ok = headers.Get("host")
+	assert.True(t, ok)
+	assert.Equal(t, "localhost:42069,localhost:42069", host)
 	assert.False(t, done)
 }
