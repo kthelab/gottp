@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"gottp/internal/headers"
 	"io"
+	"log/slog"
 	"strconv"
 )
 
@@ -90,10 +91,13 @@ func (r *Request) parse(data []byte) (int, error) {
 
 	read := 0
 
-outer:
+dance:
 	for {
 
 		currentData := data[read:]
+		if len(currentData) == 0 {
+			break dance
+		}
 
 		switch r.state {
 		case StateError:
@@ -101,14 +105,13 @@ outer:
 
 		case StateInit:
 			rl, n, err := parseRequestLine(currentData)
-
 			if err != nil {
 				r.state = StateError
 				return 0, err
 			}
 
 			if n == 0 {
-				break outer
+				break dance
 			}
 			r.RequestLine = *rl
 			read += n
@@ -116,7 +119,6 @@ outer:
 			r.state = StateHeaders
 
 		case StateHeaders:
-
 			n, done, err := r.Headers.Parse(currentData)
 			if err != nil {
 				r.state = StateError
@@ -124,19 +126,19 @@ outer:
 			}
 
 			if n == 0 {
-				break outer
+				break dance
 			}
 
 			read += n
 
 			if done {
-				r.state = StateDone
+				r.state = StateBody
 			}
 
 		case StateBody:
-			length := getIntHeaders(r.Headers, "content-lenght", 0)
+			length := getIntHeaders(r.Headers, "content-length", 0)
 			if length == 0 {
-				r.state = StateError
+				r.state = StateDone
 				break
 			}
 
@@ -144,12 +146,14 @@ outer:
 			r.Body += string(currentData[:remaining])
 			read += remaining
 
+			slog.Info("parse#stateBody", "remaining", remaining, "read", read, "body", r.Body)
+
 			if len(r.Body) == length {
 				r.state = StateDone
 			}
 
 		case StateDone:
-			break outer
+			break dance
 
 		default:
 			panic("somehow we have programmed poorly")

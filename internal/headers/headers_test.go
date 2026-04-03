@@ -23,8 +23,8 @@ func TestHeaderParse(t *testing.T) {
 	assert.True(t, ok)
 	assert.Equal(t, "barbar", foo)
 
-	missingKey, ok := headers.Get("host")
-	assert.True(t, ok)
+	missingKey, ok := headers.Get("missingKey")
+	assert.False(t, ok)
 	assert.Equal(t, "", missingKey)
 
 	assert.Equal(t, 44, n)
