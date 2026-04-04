@@ -87,6 +87,11 @@ func parseRequestLine(b []byte) (*RequestLine, int, error) {
 	return rl, read, nil
 }
 
+func (r *Request) hasBody() bool {
+	length := getIntHeaders(r.Headers, "content-length", 0)
+	return length > 0
+}
+
 func (r *Request) parse(data []byte) (int, error) {
 
 	read := 0
@@ -132,14 +137,17 @@ dance:
 			read += n
 
 			if done {
-				r.state = StateBody
+				if r.hasBody() {
+					r.state = StateBody
+				} else {
+					r.state = StateDone
+				}
 			}
 
 		case StateBody:
 			length := getIntHeaders(r.Headers, "content-length", 0)
 			if length == 0 {
-				r.state = StateDone
-				break
+				panic("chunk not implemented")
 			}
 
 			remaining := min(length-len(r.Body), len(currentData))
