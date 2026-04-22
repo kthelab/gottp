@@ -2,6 +2,7 @@ package server
 
 import (
 	"fmt"
+	"gottp/internal/response"
 	"io"
 	"net"
 )
@@ -10,8 +11,12 @@ type Server struct {
 	closed bool
 }
 
-func runConn(s *Server, conn io.ReadCloser) {
+func runConn(_s *Server, conn io.ReadWriteCloser) {
+	defer conn.Close()
 
+	headers := response.GetDefaultHeaders(0)
+	response.WriteStatusLine(conn, response.StatusOk)
+	response.WriteHeaders(conn, headers)
 }
 
 func runServer(s *Server, listener net.Listener) {
