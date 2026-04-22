@@ -44,11 +44,11 @@ func WriteStatusLine(w io.Writer, statusCode StatusCode) error {
 
 	switch statusCode {
 	case StatusOk:
-		statusLine = []byte("HTTP/1.1 200 OK")
+		statusLine = []byte("HTTP/1.1 200 OK\r\n")
 	case StatusBadRequest:
-		statusLine = []byte("HTTP/1.1 400 Bad Request")
+		statusLine = []byte("HTTP/1.1 400 Bad Request\r\n")
 	case StatusInternalServerError:
-		statusLine = []byte("HTTP/1.1 500 Internal Server Error")
+		statusLine = []byte("HTTP/1.1 500 Internal Server Error\r\n")
 	default:
 		return fmt.Errorf("unrecognized error code")
 	}
