@@ -13,7 +13,7 @@ const port = 42069
 func main() {
 	s, err := server.Serve(port)
 	if err != nil {
-		log.Fatal("Error starting server: %v", err)
+		log.Fatalf("Error starting server: %v", err)
 	}
 	defer s.Close()
 	log.Println("Server started on port", port)

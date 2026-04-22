@@ -2,6 +2,7 @@ package response
 
 import (
 	"fmt"
+	"gottp/internal/headers"
 	"io"
 )
 
@@ -15,6 +16,15 @@ const (
 	StatusBadRequest          StatusCode = 400
 	StatusInternalServerError            = 500
 )
+
+func GetDefaultHeaders(contentLen int) *headers.Headers {
+	h := headers.NewHeaders()
+	h.Set("Content-Length", fmt.Sprintf("%d", contentLen))
+	h.Set("Content-Type", "text/plain")
+	h.Set("Connection", "closed")
+
+	return h
+}
 
 func WriteStatusLine(w io.Writer, statusCode StatusCode) error {
 	statusLine := []byte{}
