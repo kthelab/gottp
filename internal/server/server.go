@@ -11,43 +11,43 @@ import (
 
 type HandlerError struct {
 	StatusCode response.StatusCode
-	Message string
+	Message    string
 }
 
-type Handler func(w io.Writer, req *request.Request) *HandlerError {
-
-} 
+type Handler func(w io.Writer, req *request.Request) *HandlerError
 
 type Server struct {
-	closed bool
+	closed  bool
 	handler Handler
 }
 
 func runConn(s *Server, conn io.ReadWriteCloser) {
 	defer conn.Close()
-	
+
 	headers := response.GetDefaultHeaders(0)
 	r, err := request.RequestFromReader(conn)
 	if err != nil {
-		response.WriteStatusLine(conn, HandlerError.StatusCode)
+		response.WriteStatusLine(conn, response.StatusBadRequest)
 		response.WriteHeaders(conn, headers)
 		return
 	}
-	
+
 	writer := bytes.NewBuffer([]byte{})
-	handlerError := s.handler(writer, r, headers)
+	handlerError := s.handler(writer, r)
 
 	if handlerError != nil {
-		response.WriteStatusLine(conn, response.StatusOk)
+		response.WriteStatusLine(conn, handlerError.StatusCode)
 		response.WriteHeaders(conn, headers)
+		conn.Write([]byte(handlerError.Message))
 		return
 	}
 
-	length := writer.Bytes()
-	headers.Replace("Content-length", fmt.Sprintf("%d", length))
-	
+	body := writer.Bytes()
+	headers.Replace("Content-length", fmt.Sprintf("%d", len(body)))
+
 	response.WriteStatusLine(conn, response.StatusOk)
 	response.WriteHeaders(conn, headers)
+	conn.Write(body)
 }
 
 func runServer(s *Server, listener net.Listener) {
@@ -70,9 +70,9 @@ func Serve(port uint16, handler Handler) (*Server, error) {
 	}
 
 	server := &Server{
-		closed: false,
-		handler: handler
-}
+		closed:  false,
+		handler: handler,
+	}
 	go runServer(server, listener)
 
 	return server, nil
