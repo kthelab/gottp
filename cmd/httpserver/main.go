@@ -1,7 +1,9 @@
 package main
 
 import (
+	"gottp/internal/request"
 	"gottp/internal/server"
+	"io"
 	"log"
 	"os"
 	"os/signal"
@@ -11,7 +13,9 @@ import (
 const port = 42069
 
 func main() {
-	s, err := server.Serve(port)
+	s, err := server.Serve(port, func(w io.Writer, req *request.Request) *server.HandlerError {
+		return nil
+	})
 	if err != nil {
 		log.Fatalf("Error starting server: %v", err)
 	}
