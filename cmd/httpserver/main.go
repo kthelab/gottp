@@ -64,9 +64,9 @@ func main() {
 			body = respond500()
 			status = response.StatusInternalServerError
 		}
-		w.WriteStatusLine(status)
-		h.Replace("content-Length", fmt.Sprintf("%d", len(body)))
 
+		h.Replace("content-Length", fmt.Sprintf("%d", len(body)))
+		w.WriteStatusLine(status)
 		w.WriteHeaders(*h)
 		w.WriteBody(body)
 	})
