@@ -18,7 +18,7 @@ import (
 func toStr(bytes []byte) string {
 	out := ""
 	for _, b := range bytes {
-		out += fmt.Sprintf("%x", b)
+		out += fmt.Sprintf("%02x", b)
 	}
 	return out
 }
