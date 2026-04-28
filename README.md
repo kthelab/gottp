@@ -29,7 +29,7 @@ It was a great experience going through all these concepts and having an even de
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 * **Language:** Go
 * **Networking:** `net` package
@@ -37,7 +37,7 @@ It was a great experience going through all these concepts and having an even de
 
 ---
 
-## ⚙️ How It Works
+## How It Works
 
 1. Starts a TCP listener on a specified port
 2. Accepts incoming client connections
@@ -48,7 +48,7 @@ It was a great experience going through all these concepts and having an even de
 
 ---
 
-## ▶️ Running the Project
+## Running the Project
 
 ```bash
 go run main.go
