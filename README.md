@@ -1,4 +1,4 @@
-# TCP to HTTP Server (Go)
+# TCP to HTTP Server in Go or as I like to call it gottp :)
 
 A minimal HTTP server built directly on top of TCP sockets, without using any high-level HTTP libraries.
 
